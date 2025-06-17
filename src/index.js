@@ -6,8 +6,8 @@ import {
 	Partials,
 } from 'discord.js';
 import 'dotenv/config';
-import { readdirSync } from 'fs';
 import path from 'path';
+import { readdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -26,6 +26,7 @@ const client = new Client({
 		GatewayIntentBits.GuildMessageReactions,
 	],
 });
+
 client.commands = new Collection();
 
 const commandsPath = path.join(__dirname, 'commands');
@@ -43,46 +44,22 @@ client.once(Events.ClientReady, () => {
 	console.log(`Logged in: ${client.user.tag}`);
 });
 
-client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
+const eventsPath = path.join(__dirname, 'events');
+const eventFiles = readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
-	const command = client.commands.get(interaction.commandName);
-	if (!command) return;
+for (const file of eventFiles) {
+	const filePath = path.join(eventsPath, file);
+	const event = await import(`file://${filePath}`);
 
-	try {
-		await command.execute(interaction);
-	} catch (error) {
-		console.error(error);
-		await interaction.reply({
-			content: 'An error occurred while executing the command.',
-			ephemeral: true,
-		});
+	if (event.default.once) {
+		client.once(event.default.name, (...args) =>
+			event.default.execute(...args, client),
+		);
+	} else {
+		client.on(event.default.name, (...args) =>
+			event.default.execute(...args, client),
+		);
 	}
-});
-
-const TARGET_CHANNEL_ID = '810471727746121742';
-
-client.on('messageReactionAdd', async (reaction, user) => {
-	if (reaction.partial) {
-		try {
-			await reaction.fetch();
-		} catch (error) {
-			console.error("Can't get reaction informations", error);
-		}
-	}
-
-	if (user.bot) return;
-	if (reaction.message.channel.id !== TARGET_CHANNEL_ID) return;
-
-	const allReactions = reaction.message.reactions.cache;
-
-	allReactions
-		.filter(
-			reply =>
-				reply.users.cache.has(user.id) &&
-				reply.emoji.name !== reaction.emoji.name,
-		)
-		.forEach(reply => reply.users.remove(user.id));
-});
+}
 
 client.login(process.env.TOKEN);
