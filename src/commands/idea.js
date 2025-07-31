@@ -12,8 +12,9 @@ export const data = new SlashCommandBuilder()
 
 export async function execute(interaction) {
 	const idea = interaction.options.getString('description');
-	const targetChannel =
-		interaction.client.channels.cache.get('810471727746121742');
+	const targetChannel = interaction.client.channels.cache.get(
+		'1382883281309270076',
+	);
 
 	const message = await targetChannel.send(idea);
 	await message.react('✅');
