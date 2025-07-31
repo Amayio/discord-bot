@@ -1,5 +1,3 @@
-const TARGET_CHANNEL_ID = '810471727746121742';
-
 export default {
 	name: 'messageReactionAdd',
 	once: false,
@@ -13,8 +11,18 @@ export default {
 			}
 		}
 
+		try {
+			await reaction.message.fetch();
+			for (const react of reaction.message.reactions.cache.values()) {
+				await react.users.fetch();
+			}
+		} catch (error) {
+			console.error("Can't fetch message or users", error);
+			return;
+		}
+
 		if (user.bot) return;
-		if (reaction.message.channel.id !== TARGET_CHANNEL_ID) return;
+		if (reaction.message.channel.id !== process.env.OUTPUT_CHANNEL_ID) return;
 
 		const allReactions = reaction.message.reactions.cache;
 

@@ -21,6 +21,6 @@ export async function execute(interaction) {
 	const sides = interaction.options.getInteger('sides');
 	const result = Math.floor(Math.random() * sides) + 1;
 	await interaction.reply(
-		`🎲 Rolling a ${sides}-sided die... Your result is... ${result}`,
+		`🎲 Rolling a ${sides}-sided dice... Your result is... ${result}`,
 	);
 }
