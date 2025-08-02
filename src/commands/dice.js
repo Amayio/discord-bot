@@ -9,6 +9,7 @@ export const data = new SlashCommandBuilder()
 			.setDescription('Number of sides:')
 			.setRequired(true)
 			.addChoices(
+				{ name: '4', value: 4 },
 				{ name: '6', value: 6 },
 				{ name: '8', value: 8 },
 				{ name: '10', value: 10 },
