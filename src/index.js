@@ -9,6 +9,7 @@ import 'dotenv/config';
 import path from 'path';
 import { readdirSync } from 'fs';
 import { fileURLToPath } from 'url';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -62,4 +63,27 @@ for (const file of eventFiles) {
 	}
 }
 
-client.login(process.env.TOKEN);
+const mongoClient = new MongoClient(process.env.DATABASE_CONNECT_STRING, {
+	serverApi: {
+		version: ServerApiVersion.v1,
+		strict: true,
+		deprecationErrors: true,
+	},
+});
+
+async function startBot() {
+	try {
+		await mongoClient.connect();
+		await mongoClient.db('admin').command({ ping: 1 });
+		console.log(
+			'Pinged your deployment. You successfully connected to MongoDB!',
+		);
+		client.mongo = mongoClient;
+		client.login(process.env.TOKEN);
+		console.log('Success!');
+	} catch (err) {
+		console.error(`Startup error: ${err}`);
+	}
+}
+
+startBot();
