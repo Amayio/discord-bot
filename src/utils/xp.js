@@ -1,4 +1,4 @@
-import { getUserData } from '../models/User';
+import { getUserData } from '../models/User.js';
 
 export async function addXP(client, userId, guildId, amount) {
 	const users = client.mongo.db('shinobichronicles').collection('users');

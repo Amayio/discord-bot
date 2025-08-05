@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from 'discord.js';
-import { addXP } from '../utils/xp';
+import { addXP } from '../utils/xp.js';
 
 export const data = new SlashCommandBuilder()
 	.setName('addxp')
